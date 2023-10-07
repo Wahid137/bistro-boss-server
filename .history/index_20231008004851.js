@@ -141,7 +141,7 @@ async function run() {
             res.send(result);
         })
 
-        /* app.put('/menu/:id', async (req, res) => {
+        app.put('/menu/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true }
@@ -157,7 +157,28 @@ async function run() {
 
             const result = await menuCollection.updateOne(filter, updateDoc, options);
             res.send(result);
-        }) */
+        })
+
+        //make admin update role
+        app.patch('/menu/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+
+            const updatedItem = req.body;
+            const updateDoc = {
+                $set: {
+                    name: updatedItem.name,
+                    image: updatedItem.image,
+                    category: updatedItem.category,
+                    price: updatedItem.price
+                }
+            }
+
+
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
+
+        })
 
 
         app.delete('/menu/:id', verifyJWT, verifyAdmin, async (req, res) => {

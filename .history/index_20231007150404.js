@@ -135,36 +135,10 @@ async function run() {
         })
 
         //add item from dashboard add item form admin
-        app.post('/menu', verifyJWT, verifyAdmin, async (req, res) => {
+        app.post("/menu", verifyJWT, verifyAdmin, async (req, res) => {
             const newItem = req.body;
-            const result = await menuCollection.insertOne(newItem)
-            res.send(result);
-        })
-
-        /* app.put('/menu/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) }
-            const options = { upsert: true }
-            const updatedItem = req.body;
-            const updateDoc = {
-                $set: {
-                    name: updatedItem.name,
-                    image: updatedItem.image,
-                    category: updatedItem.category,
-                    price: updatedItem.price
-                }
-            }
-
-            const result = await menuCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-        }) */
-
-
-        app.delete('/menu/:id', verifyJWT, verifyAdmin, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-            const result = await menuCollection.deleteOne(query);
-            res.send(result);
+            const result = menuCollection.insertOne(newItem)
+            res.send(result)
         })
 
         //all reviews

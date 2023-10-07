@@ -50,18 +50,6 @@ async function run() {
         const cartCollection = client.db("bistroDb").collection("carts");
 
 
-
-        //make sure you use verifyAdmin after verifyJWT
-        const verifyAdmin = async (req, res, next) => {
-            const decodedEmail = req.decoded.email;
-            const query = { email: decodedEmail }
-            const user = await usersCollection.findOne(query);
-            if (user?.role !== 'admin') {
-                return res.status(403).send({ message: 'Only admin Access!' })
-            }
-            next();
-        }
-
         //create token
         app.post('/jwt', (req, res) => {
             const user = req.body;
@@ -71,7 +59,7 @@ async function run() {
         })
 
         //get users from users collection
-        app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
+        app.get("/users", async (req, res) => {
             const result = await usersCollection.find().toArray()
             res.send(result)
         })
@@ -90,20 +78,6 @@ async function run() {
             res.send(result);
         });
 
-        //security layer: verifyJWT
-        //same email decoded and email
-        //check admin
-        app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            if (req.decoded.email !== email) {
-                res.send({ admin: false })
-            }
-            const query = { email: email }
-            const user = await usersCollection.findOne(query)
-            const result = { admin: user?.role === "admin" }
-            res.send(result)
-        })
-
         //delete user
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id
@@ -116,6 +90,7 @@ async function run() {
         //make admin update role
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id);
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -134,57 +109,17 @@ async function run() {
             res.send(result);
         })
 
-        //add item from dashboard add item form admin
-        app.post('/menu', verifyJWT, verifyAdmin, async (req, res) => {
-            const newItem = req.body;
-            const result = await menuCollection.insertOne(newItem)
-            res.send(result);
-        })
-
-        /* app.put('/menu/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) }
-            const options = { upsert: true }
-            const updatedItem = req.body;
-            const updateDoc = {
-                $set: {
-                    name: updatedItem.name,
-                    image: updatedItem.image,
-                    category: updatedItem.category,
-                    price: updatedItem.price
-                }
-            }
-
-            const result = await menuCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-        }) */
-
-
-        app.delete('/menu/:id', verifyJWT, verifyAdmin, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-            const result = await menuCollection.deleteOne(query);
-            res.send(result);
-        })
-
         //all reviews
         app.get('/reviews', async (req, res) => {
             const result = await reviewCollection.find().toArray();
             res.send(result);
         })
 
-
-
         //get carts for specific users
-        app.get('/carts', verifyJWT, async (req, res) => {
+        app.get('/carts', async (req, res) => {
             const email = req.query.email;
             if (!email) {
                 res.send([])
-            }
-
-            const decodedEmail = req.decoded.email;
-            if (email !== decodedEmail) {
-                return res.status(403).send({ error: true, message: 'forbidden access' })
             }
             const query = { email: email }
             const result = await cartCollection.find(query).toArray()

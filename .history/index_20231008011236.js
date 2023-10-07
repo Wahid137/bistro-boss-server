@@ -159,6 +159,28 @@ async function run() {
             res.send(result);
         }) */
 
+        //make admin update role
+        app.put('/menu/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true }
+            const updatedItem = req.body;
+            const updateDoc = {
+                $set: {
+                    name: updatedItem.name,
+                    image: updatedItem.image,
+                    category: updatedItem.category,
+                    price: updatedItem.price
+                }
+            }
+            console.log(updateDoc)
+
+
+            const result = await menuCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+
 
         app.delete('/menu/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
