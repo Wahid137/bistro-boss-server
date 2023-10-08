@@ -49,7 +49,6 @@ async function run() {
         const menuCollection = client.db("bistroDb").collection("menu");
         const reviewCollection = client.db("bistroDb").collection("reviews");
         const cartCollection = client.db("bistroDb").collection("carts");
-        const paymentsCollection = client.db("bistroDb").collection("payments");
 
 
 
@@ -224,17 +223,6 @@ async function run() {
             res.send({
                 clientSecret: paymentIntent.client_secret
             })
-        })
-
-
-        //store payment collection
-        app.post('/payments', async (req, res) => {
-            const payment = req.body;
-            const insertResult = await paymentsCollection.insertOne(payment)
-
-            const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
-            const deleteResult = await cartCollection.deleteMany(query)
-            res.send({ insertResult, deleteResult })
         })
 
 
