@@ -244,49 +244,6 @@ async function run() {
 
             const payments = await paymentsCollection.find().toArray()
             const revenue = payments.reduce((sum, payment) => sum + payment.price, 0)
-
-            res.send({
-                revenue,
-                users,
-                products,
-                orders
-            })
-        })
-
-
-        app.get('/order-stats', verifyJWT, verifyAdmin, async (req, res) => {
-            const pipeline = [
-                {
-                    $lookup: {
-                        from: 'menu',
-                        localField: 'menuItems',
-                        foreignField: '_id',
-                        as: 'menuItemsData'
-                    }
-                },
-                {
-                    $unwind: '$menuItemsData'
-                },
-                {
-                    $group: {
-                        _id: '$menuItemsData.category',
-                        count: { $sum: 1 },
-                        total: { $sum: '$menuItemsData.price' }
-                    }
-                },
-                {
-                    $project: {
-                        category: '$_id',
-                        count: 1,
-                        total: { $round: ['$total', 2] },
-                        _id: 0
-                    }
-                }
-            ];
-
-            const result = await paymentsCollection.aggregate(pipeline).toArray()
-            res.send(result)
-
         })
 
 

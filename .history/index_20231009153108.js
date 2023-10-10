@@ -254,42 +254,6 @@ async function run() {
         })
 
 
-        app.get('/order-stats', verifyJWT, verifyAdmin, async (req, res) => {
-            const pipeline = [
-                {
-                    $lookup: {
-                        from: 'menu',
-                        localField: 'menuItems',
-                        foreignField: '_id',
-                        as: 'menuItemsData'
-                    }
-                },
-                {
-                    $unwind: '$menuItemsData'
-                },
-                {
-                    $group: {
-                        _id: '$menuItemsData.category',
-                        count: { $sum: 1 },
-                        total: { $sum: '$menuItemsData.price' }
-                    }
-                },
-                {
-                    $project: {
-                        category: '$_id',
-                        count: 1,
-                        total: { $round: ['$total', 2] },
-                        _id: 0
-                    }
-                }
-            ];
-
-            const result = await paymentsCollection.aggregate(pipeline).toArray()
-            res.send(result)
-
-        })
-
-
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");

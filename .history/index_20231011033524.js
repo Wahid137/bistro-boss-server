@@ -284,7 +284,7 @@ async function run() {
                 }
             ];
 
-            const result = await paymentsCollection.aggregate(pipeline).toArray()
+            const result = await paymentCollection.aggregate(pipeline).toArray()
             res.send(result)
 
         })
